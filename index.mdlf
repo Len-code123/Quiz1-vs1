@@ -1,0 +1,196 @@
+index.html
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>1vs1 Quizduell</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Roboto', sans-serif;
+      background: radial-gradient(circle, #0a0a0a, #000);
+      color: white;
+      text-align: center;
+    }
+    header {
+      padding: 1rem;
+      background: #222;
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+    main {
+      padding: 2rem;
+    }
+    button {
+      background: #0044cc;
+      color: white;
+      border: none;
+      padding: 1rem 2rem;
+      font-size: 1rem;
+      margin: 1rem;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      background: #0033aa;
+    }
+    .hidden { display: none; }
+    .question-box {
+      background: #111;
+      border-radius: 12px;
+      padding: 1rem;
+      margin: 1rem auto;
+      max-width: 600px;
+    }
+    .answer-button {
+      display: block;
+      width: 100%;
+      margin: 0.5rem 0;
+      padding: 1rem;
+      font-size: 1rem;
+      background: #333;
+      border: 2px solid #444;
+      border-radius: 8px;
+      cursor: pointer;
+      color: white;
+    }
+    .timer {
+      font-size: 1.2rem;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <header>🎮 1vs1 Quizduell</header>
+  <main>
+    <div id="start-screen">
+      <h2>Spiel starten</h2>
+      <button onclick="startNewGame()">Neue Gruppe erstellen</button>
+      <p>Oder Code eingeben:</p>
+      <input type="text" id="join-code" placeholder="Code eingeben" />
+      <button onclick="joinGame()">Beitreten</button>
+    </div>
+
+    <div id="game-screen" class="hidden">
+      <div id="question-number"></div>
+      <div class="question-box">
+        <h3 id="question-text"></h3>
+        <div id="answers"></div>
+        <div class="timer" id="timer"></div>
+      </div>
+      <button onclick="useJoker()">🎁 Joker</button>
+      <button onclick="useHint()">💡 Tipp</button>
+    </div>
+
+    <div id="result-screen" class="hidden">
+      <h2 id="result-text"></h2>
+      <button onclick="location.reload()">🔁 Neues Spiel</button>
+    </div>
+  </main>
+
+  <script>
+    const questions = [
+      { q: "Wer lebt in einer Ananas ganz tief im Meer?", a: "SpongeBob" },
+      { q: "Wie heißt die Schule von Harry Potter?", a: "Hogwarts" },
+      { q: "Was ist das Gegenteil von Tag?", a: "Nacht" },
+      { q: "Welches Tier miaut?", a: "Katze" },
+      { q: "Was ist das Hauptnahrungsmittel von Pandas?", a: "Bambus" },
+      { q: "Was ist das größte Tier auf der Erde?", a: "Blauwal" },
+      { q: "Welcher Planet ist der Erde am ähnlichsten?", a: "Mars" },
+      { q: "Was lebt in Korallenriffen und ist bunt?", a: "Clownfisch" },
+      { q: "Welches Tier rollt sich bei Gefahr zusammen?", a: "Igel" },
+      { q: "Was ist das schnellste Tier auf dem Land?", a: "Gepard" },
+    ];
+
+    let current = 0;
+    let score = 0;
+    let timerInterval;
+    let remainingTime = 60;
+
+    function startNewGame() {
+      document.getElementById("start-screen").classList.add("hidden");
+      document.getElementById("game-screen").classList.remove("hidden");
+      current = 0;
+      score = 0;
+      loadQuestion();
+    }
+
+    function joinGame() {
+      const code = document.getElementById("join-code").value;
+      if (code.trim() !== "") {
+        startNewGame(); // Simuliere Beitritt
+      }
+    }
+
+    function loadQuestion() {
+      if (current >= questions.length) {
+        showResult();
+        return;
+      }
+      const q = questions[current];
+      document.getElementById("question-number").innerText = `Frage ${current + 1} von ${questions.length}`;
+      document.getElementById("question-text").innerText = q.q;
+      const answersDiv = document.getElementById("answers");
+      answersDiv.innerHTML = "";
+      [q.a, "Antwort A", "Antwort B", "Antwort C"].sort(() => 0.5 - Math.random()).forEach((ans) => {
+        const btn = document.createElement("button");
+        btn.className = "answer-button";
+        btn.innerText = ans;
+        btn.onclick = () => checkAnswer(ans);
+        answersDiv.appendChild(btn);
+      });
+      startTimer();
+    }
+
+    function startTimer() {
+      remainingTime = 60;
+      document.getElementById("timer").innerText = `⏳ ${remainingTime} Sekunden`;
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        remainingTime--;
+        document.getElementById("timer").innerText = `⏳ ${remainingTime} Sekunden`;
+        if (remainingTime <= 0) {
+          clearInterval(timerInterval);
+          nextQuestion();
+        }
+      }, 1000);
+    }
+
+    function checkAnswer(answer) {
+      clearInterval(timerInterval);
+      const correct = questions[current].a;
+      if (answer === correct) {
+        score++;
+      }
+      nextQuestion();
+    }
+
+    function nextQuestion() {
+      current++;
+      loadQuestion();
+    }
+
+    function showResult() {
+      document.getElementById("game-screen").classList.add("hidden");
+      document.getElementById("result-screen").classList.remove("hidden");
+      document.getElementById("result-text").innerText = `🎉 Du hast ${score} von ${questions.length} Fragen richtig!`;
+    }
+
+    function useJoker() {
+      alert("Joker verwendet! Eine falsche Antwort wird entfernt.");
+      const correct = questions[current].a;
+      const answers = Array.from(document.querySelectorAll(".answer-button"));
+      const wrong = answers.filter(btn => btn.innerText !== correct);
+      if (wrong.length > 0) wrong[0].remove();
+    }
+
+    function useHint() {
+      alert("Tipp: Die Antwort beginnt mit: " + questions[current].a[0]);
+    }
+  </script>
+</body>
+</html>
