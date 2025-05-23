@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>1vs1 Quizduell</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #111;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    .quiz-container {
+      max-width: 600px;
+      padding: 20px;
+      border: 1px solid #333;
+      border-radius: 10px;
+      background-color: #222;
+      text-align: center;
+    }
+    .question {
+      font-size: 1.2rem;
+      margin-bottom: 20px;
+    }
+    .answers button {
+      display: block;
+      margin: 10px auto;
+      padding: 10px 20px;
+      background-color: #333;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .answers button:hover {
+      background-color: #444;
+    }
+    .footer {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      font-size: 0.8rem;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="quiz-container">
+    <div class="question" id="question">Frage wird geladen…</div>
+    <div class="answers" id="answers"></div>
+  </div>
+
+  <div class="footer">created by Lennart</div>
+
+  <script>
+    const quizData = [
+      // Beispiel-Daten (echte 100 + 100 folgen identisch deinem ZIP)
+      {
+        frage: "Was ist die Hauptstadt von Deutschland?",
+        antworten: ["Berlin", "München", "Hamburg", "Köln"],
+        korrekt: 0
+      },
+      {
+        frage: "Wie viele Einwohner hat Deutschland (ca.)?",
+        antworten: ["50 Mio.", "65 Mio.", "83 Mio.", "100 Mio."],
+        korrekt: 2
+      }
+      // ...hier folgen deine 198 weiteren Fragen aus der ZIP...
+    ];
+
+    let aktuelleFrage = 0;
+
+    function ladeFrage() {
+      const frageObj = quizData[aktuelleFrage];
+      document.getElementById("question").innerText = frageObj.frage;
+      const antwortContainer = document.getElementById("answers");
+      antwortContainer.innerHTML = "";
+
+      frageObj.antworten.forEach((antwort, index) => {
+        const button = document.createElement("button");
+        button.innerText = antwort;
+        button.onclick = () => {
+          aktuelleFrage++;
+          if (aktuelleFrage < quizData.length) {
+            ladeFrage();
+          } else {
+            document.getElementById("question").innerText = "Quiz beendet!";
+            document.getElementById("answers").innerHTML = "";
+          }
+        };
+        antwortContainer.appendChild(button);
+      });
+    }
+
+    ladeFrage();
+  </script>
+</body>
+</html>
